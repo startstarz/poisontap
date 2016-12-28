@@ -38,6 +38,7 @@ do
     echo "[-] Missing dependency: ${i}"
     echo "[+] Attempting to install...."
     sudo apt-get -y install ${i}
+    [ $(node -p "require('ws/package.json').version") != "1.1.1" ] && npm install ws@1.1.1
   fi
 done
 }
